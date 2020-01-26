@@ -21,32 +21,27 @@ def contar_valores(df):
    for col in df:
        print(df[col].value_counts)
 
-#Función para ver los datos nulos 
-def nulos_out(df):
-    """Formula para calcular datos nulos y outliers, 
-   y mostrarlo en una tabla de cualquier dataframe con una desviación 
-   estandar de 3+- """
-    
-    a = df.isnull().sum().to_frame(name='Nulos')                             #sumamos los nulos
-    a['% Nulos'] = ((a['Nulos'] / len(df)) * 100).round()                    #porcentaje
-    #Buscar outliers
-    media = np.mean(df.iloc[:, :])
-    des_std = np.std(df.iloc[:, :])
-    g = des_std * 3
+#Función para ver los datos nulos y graficar missingo
+def Nulos(df):
+  """Formula para identificar los nulos por registros mostrar el
+  porcentaje de estos y graficar en missingno"""
+  a=df.isnull().sum().to_frame(name='Numero_Nulos')
+  a['Nulos %']= ((a['Numero_Nulos']/len(df))*100).round()
+  a['Datos']=df.count()
+  a['Total_Registros']=a['Datos']+a['Numero_Nulos']
+  a=a[['Total_Registros','Datos','Numero_Nulos','Nulos %']]
+  b=msno.matrix(df,figsize = (14,8), fontsize = 10);
+  return a,b
 
-    ss = np.where(
-        (df.iloc[:, :] < media - (g)) | (df.iloc[:, :] > media + (g)), True,
-        False)
+#Identificar outliers por columna con parametro desviación estandar 3
+    
+def outliers_columna(df,col):
+  media=np.mean(df[col])
+  des_std=np.std(df[col])
+  g=des_std*3
+  identificador=np.where((df[col]<media-(g)) | (df[col]>media+(g)),True,False)
 
-    df3 = pd.DataFrame(ss)
-    df5 = df3.sum(axis=0, skipna=True)
-    list_out = list(df5)
-    a["Outliers"] = list_out
-    a['% Outliers'] = ((a['Outliers'] / len(df)) * 100).round()
-    b = msno.matrix(df, figsize=(14, 8), fontsize=10)
-    return a, b
-    
-    
+  return identificador    
     
 #HISTOGRAMA
 
